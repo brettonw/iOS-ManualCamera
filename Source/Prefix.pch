@@ -1,0 +1,23 @@
+#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+#import <AVFoundation/AVFoundation.h>
+
+#define NOT                 !
+#define AND                 &&
+#define OR                  ||
+
+#define ARRAY_SIZE(array)   sizeof(array)/sizeof(array[0])
+
+#define APPLICATION         [UIApplication sharedApplication]
+#define DEVICE              [UIDevice currentDevice]
+#define SYSTEM_VERSION      DEVICE.systemVersion
+
+#define SYSTEM_VERSION_EQUAL_TO(v)                  ([SYSTEM_VERSION compare:v options:NSNumericSearch] == NSOrderedSame)
+#define SYSTEM_VERSION_GREATER_THAN(v)              ([SYSTEM_VERSION compare:v options:NSNumericSearch] == NSOrderedDescending)
+#define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([SYSTEM_VERSION compare:v options:NSNumericSearch] != NSOrderedAscending)
+#define SYSTEM_VERSION_LESS_THAN(v)                 ([SYSTEM_VERSION compare:v options:NSNumericSearch] == NSOrderedAscending)
+#define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([SYSTEM_VERSION compare:v options:NSNumericSearch] != NSOrderedDescending)
+
+#define TIMED_CALL(time, function)                                              \
+    [NSTimer scheduledTimerWithTimeInterval:time target:self selector:@selector(function:) userInfo:nil repeats:NO]
+#define NO_DELAY            0.1
