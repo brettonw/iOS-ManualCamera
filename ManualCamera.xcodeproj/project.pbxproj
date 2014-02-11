@@ -15,6 +15,7 @@
 		642CB3FA188572DE001C5210 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 642CB3F9188572DE001C5210 /* Images.xcassets */; };
 		642CB4201885BA68001C5210 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 642CB41F1885BA68001C5210 /* ViewController.m */; };
 		643BE7F7189DD062008643D8 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 643BE7F6189DD062008643D8 /* AVFoundation.framework */; };
+		643BE7FC18AA9428008643D8 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 643BE7FB18AA9428008643D8 /* CoreVideo.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,7 @@
 		642CB41F1885BA68001C5210 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		643BE7F6189DD062008643D8 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		643BE7F8189DD15C008643D8 /* AVCaptureDevicePrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVCaptureDevicePrivate.h; sourceTree = "<group>"; };
+		643BE7FB18AA9428008643D8 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,6 +41,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				643BE7FC18AA9428008643D8 /* CoreVideo.framework in Frameworks */,
 				643BE7F7189DD062008643D8 /* AVFoundation.framework in Frameworks */,
 				642CB3EA188572DE001C5210 /* CoreGraphics.framework in Frameworks */,
 				642CB3EC188572DE001C5210 /* UIKit.framework in Frameworks */,
@@ -72,6 +75,7 @@
 				643BE7F6189DD062008643D8 /* AVFoundation.framework */,
 				642CB3E7188572DE001C5210 /* Foundation.framework */,
 				642CB3E9188572DE001C5210 /* CoreGraphics.framework */,
+				643BE7FB18AA9428008643D8 /* CoreVideo.framework */,
 				642CB3EB188572DE001C5210 /* UIKit.framework */,
 			);
 			name = Frameworks;

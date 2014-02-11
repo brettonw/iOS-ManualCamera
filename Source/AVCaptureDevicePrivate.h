@@ -12,7 +12,6 @@ AVCaptureExposureDurationMake(int32_t denom) {
     return ed;
 }
 
-
 @interface AVCaptureDevice (AVCaptureDevicePrivate)
 
 @property(nonatomic) float whiteBalanceTemperature;
