@@ -200,7 +200,7 @@ UISlider*   tmpSlider;
     [self.view addSubview:controlContainerView];
     
     // put sliders down for camera controls
-    [self createSliderWithTitle:@"Gain" min:1 max:8 value:3.0 atY:20];
+    [self createSliderWithTitle:@"Gain" min:1 max:16 value:3.0 atY:20];
     exposureGainSlider = tmpSlider; exposureGainLabel = tmpLabel;
     [self createSliderWithTitle:@"Duration" min:0 max:ARRAY_SIZE(exposureTimes) value:9 atY:(CGRectGetMaxY(tmpSlider.frame) + 10)];
     exposureDurationIndexSlider = tmpSlider; exposureDurationLabel = tmpLabel;
