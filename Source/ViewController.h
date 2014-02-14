@@ -1,5 +1,6 @@
 @interface ViewController : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate> {
-    UIView*   baseView;
+    UIView*                     baseView;
+    UIView*                     controlContainerView;
     
     // the video camera session, device, etc.
     AVCaptureSession*           captureSession;
@@ -8,17 +9,17 @@
     AVCaptureVideoDataOutput*   videoDataOutput;
     dispatch_queue_t            videoDataOutputQueue;
     
-    // camera control values
-    CGFloat                     exposureGain;
-    NSUInteger                  exposureDurationIndex;
-    CGFloat                     whiteBalanceTemperature;
-    CGFloat                     focusPosition;
-    
-    // camera controls
+    // sliders to manipulate the camera control values
     UISlider*                   exposureDurationIndexSlider;
     UISlider*                   exposureGainSlider;
     UISlider*                   whiteBalanceTemperatureSlider;
     UISlider*                   focusPositionSlider;
+    
+    // labels to show the camera control values
+    UILabel*                    exposureDurationLabel;
+    UILabel*                    exposureGainLabel;
+    UILabel*                    whiteBalanceTemperatureLabel;
+    UILabel*                    focusPositionLabel;
 }
 
 @end
