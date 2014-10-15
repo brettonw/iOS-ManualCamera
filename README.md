@@ -3,7 +3,7 @@ iOS-ManualCamera
 
 ManualCamera is an app to implement manual control of the camera functions on iOS 7 devices using private and undocumented APIs on the AVCaptureDevice.
 
-*NOTE* This app does not work on iOS8 as the undocumented APIs it uses have changed. iOS8 supports manual camera controls using documented APIs, so I will not be updating this app to fix the issues.
+*NOTE*: This app does not work on iOS8 as the undocumented APIs it uses have changed. iOS8 supports manual camera controls using documented APIs, so I will not be updating this app to fix the issues.
 
 While working on a project that uses the iPad camera to make scientific color measurements, we determined a need for APIs more suitable for our intended use. We need very precise control of the exposure and white balance for repeatable results within some error tolerance, and we need to work around a few things that are specific to Apple's intended use of the iPad and iPhone as simple point-and-shoot cameras. Thus was born an exploration of the world of Apple's private and undocumented APIs.
 
