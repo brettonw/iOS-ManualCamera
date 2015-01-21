@@ -20,6 +20,9 @@
     UILabel*                    exposureGainLabel;
     UILabel*                    whiteBalanceTemperatureLabel;
     UILabel*                    focusPositionLabel;
+    
+    // timer to commit the settings
+    NSTimer*                    commitTimer;
 }
 
 @end

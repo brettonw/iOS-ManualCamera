@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		64273D5D1A6F56F60081FAB7 /* AVCaptureDevicePrivate.m in Sources */ = {isa = PBXBuildFile; fileRef = 64273D5C1A6F56F60081FAB7 /* AVCaptureDevicePrivate.m */; };
 		642CB3E8188572DE001C5210 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 642CB3E7188572DE001C5210 /* Foundation.framework */; };
 		642CB3EA188572DE001C5210 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 642CB3E9188572DE001C5210 /* CoreGraphics.framework */; };
 		642CB3EC188572DE001C5210 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 642CB3EB188572DE001C5210 /* UIKit.framework */; };
@@ -19,6 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		64273D5C1A6F56F60081FAB7 /* AVCaptureDevicePrivate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVCaptureDevicePrivate.m; sourceTree = "<group>"; };
 		642CB3E4188572DE001C5210 /* ManualCamera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ManualCamera.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		642CB3E7188572DE001C5210 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		642CB3E9188572DE001C5210 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -87,6 +89,7 @@
 				642CB3F6188572DE001C5210 /* AppDelegate.h */,
 				642CB3F7188572DE001C5210 /* AppDelegate.m */,
 				643BE7F8189DD15C008643D8 /* AVCaptureDevicePrivate.h */,
+				64273D5C1A6F56F60081FAB7 /* AVCaptureDevicePrivate.m */,
 				642CB3F5188572DE001C5210 /* Prefix.pch */,
 				642CB41E1885BA68001C5210 /* ViewController.h */,
 				642CB41F1885BA68001C5210 /* ViewController.m */,
@@ -131,8 +134,13 @@
 		642CB3DC188572DE001C5210 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0500;
+				LastUpgradeCheck = 0600;
 				ORGANIZATIONNAME = Frost;
+				TargetAttributes = {
+					642CB3E3188572DE001C5210 = {
+						DevelopmentTeam = Z99WWQFGP8;
+					};
+				};
 			};
 			buildConfigurationList = 642CB3DF188572DE001C5210 /* Build configuration list for PBXProject "ManualCamera" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -168,6 +176,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				64273D5D1A6F56F60081FAB7 /* AVCaptureDevicePrivate.m in Sources */,
 				642CB4201885BA68001C5210 /* ViewController.m in Sources */,
 				642CB3F8188572DE001C5210 /* AppDelegate.m in Sources */,
 			);
@@ -191,7 +200,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -220,7 +228,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -231,7 +239,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -254,7 +261,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
@@ -266,11 +273,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Source/Prefix.pch;
 				INFOPLIST_FILE = Source/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
@@ -281,11 +291,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Source/Prefix.pch;
 				INFOPLIST_FILE = Source/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
