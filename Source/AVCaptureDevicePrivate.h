@@ -1,8 +1,6 @@
 @interface AVCaptureDevice (AVCaptureDevicePrivate)
 
 @property(nonatomic) float whiteBalanceTemperature;
-
-#define AVCaptureFocusModeCustom        3
 @property(nonatomic, getter=isManualFocusSupportEnabled) BOOL manualFocusSupportEnabled;
 @property(nonatomic) float focusPosition;
 

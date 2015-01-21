@@ -2,20 +2,31 @@
 
 @implementation AVCaptureDevice (AVCaptureDevicePrivate)
 
+- (float)focusPosition
+{
+    return self.lensPosition;
+}
+
+- (void)setFocusPosition:(float)focusPosition
+{
+    [self setFocusModeLockedWithLensPosition:focusPosition completionHandler:nil];
+}
+
+- (BOOL)isManualFocusSupportEnabled
+{
+    return YES;
+}
+
+- (void)setManualFocusSupportEnabled:(BOOL)arg1
+{
+}
+
 - (float)whiteBalanceTemperature
 {
     return 0;
 }
 
 - (void)setWhiteBalanceTemperature:(float)arg1
-{
-}
-
-- (void)setManualExposureSupportEnabled:(BOOL)enabled
-{
-}
-
-- (void)setManualFocusSupportEnabled:(BOOL)enabled
 {
 }
 
@@ -60,21 +71,25 @@ static bool     manualCameraDirty = true;
 
 -(bool)commit
 {
-    // check that we are not already synching
-    if (manualCameraDirty AND (NOT manualCameraSynching)) {
-        // flag that we are synching
-        manualCameraSynching = true;
-        
-        // set the exposure
-        self.exposureMode = AVCaptureExposureModeCustom;
-        [self setExposureModeCustomWithDuration:manualCameraExposureDuration ISO:manualCameraISO completionHandler:^(CMTime syncTime) {
-            NSLog(@"ISO = %f, exposure = %lld/%d sec", manualCameraISO, manualCameraExposureDuration.value, manualCameraExposureDuration.timescale);
-            manualCameraSynching = false;
-            manualCameraDirty = false;
-        }];
-        return true;
+    if (manualCameraDirty) {
+        // check that we are not already synching
+        if (NOT manualCameraSynching) {
+            // flag that we are synching
+            manualCameraSynching = true;
+            
+            // set the exposure
+            self.exposureMode = AVCaptureExposureModeCustom;
+            [self setExposureModeCustomWithDuration:manualCameraExposureDuration ISO:manualCameraISO completionHandler:^(CMTime syncTime) {
+                NSLog(@"ISO = %f, exposure = %lld/%d sec", manualCameraISO, manualCameraExposureDuration.value, manualCameraExposureDuration.timescale);
+                manualCameraSynching = false;
+                manualCameraDirty = false;
+            }];
+            return true;
+        } else {
+            return false;
+        }
     } else {
-        return false;
+        return true;
     }
 }
 

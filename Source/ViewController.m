@@ -31,10 +31,8 @@ NSInteger exposureTimes[] = { 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384,
         // capture device starts up. Unfortunately they seem to be set differently
         // depending on the lighting environment at start, so we reset them every
         // time to ensure consistency
-        /*
         captureDevice.contrast = 0.0;
         captureDevice.saturation = 0.5;
-         */
         
         // we don't want the device to "help" us here, so we turn off low light
         // boost mode completely
@@ -43,40 +41,15 @@ NSInteger exposureTimes[] = { 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384,
         }
         
         // set the gain and exposure duration, duration is set as a fractional
-        // shutter speed just like a "real" camera. Gain is a value from 1..?
+        // shutter speed just like a "real" camera. Gain is a value from 0..1
+        // which maps the minISO to maxISO range on the device
         captureDevice.exposureGain = exposureGainSlider.value;
         NSInteger   exposureDuration = exposureTimes[(NSUInteger)(exposureDurationIndexSlider.value + 0.5)];
         captureDevice.exposureDuration = CMTimeMake(1, (int32_t)exposureDuration);
 
-        /*
-        // enable the manual focus mode, then check to see if that worked
-        captureDevice.manualFocusSupportEnabled = YES;
-        if ([captureDevice isFocusModeSupported:AVCaptureFocusModeCustom]) {
-            // set the focus position, the range is [0..1]
-            captureDevice.focusPosition = focusPositionSlider.value;
-            
-            // tap the device to use the new value by setting the mode to manual
-            captureDevice.focusMode = AVCaptureFocusModeCustom;
-
-            // report the control values
-            focusPositionLabel.text = [NSString stringWithFormat:@"%05.03f", captureDevice.focusPosition];
-        }
-         */
-
-        /*
-        // note that there is no equivalent enabling pattern for manually
-        // setting the white balance temperature, we can just set it directly
-        // the range is [0..1], with 0.5 being a good first guess.
-        captureDevice.whiteBalanceTemperature = whiteBalanceTemperatureSlider.value;
-        
-        // tap the device to use the new value by setting the mode
-        if ([captureDevice isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance]) {
-            captureDevice.whiteBalanceMode = AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance;
-        }
-         */
-        
-        // report the control values
-        whiteBalanceTemperatureLabel.text = [NSString stringWithFormat:@"%05.03f", captureDevice.whiteBalanceTemperature];
+        // set the focus position, the range is [0..1], and report the focus control value
+        captureDevice.focusPosition = focusPositionSlider.value;
+        focusPositionLabel.text = [NSString stringWithFormat:@"%05.03f", captureDevice.focusPosition];
 
         // try to commit the control values
         bool success = [captureDevice commit];
@@ -221,8 +194,6 @@ UISlider*   tmpSlider;
     exposureGainSlider = tmpSlider; exposureGainLabel = tmpLabel;
     [self createSliderWithTitle:@"Duration" min:0 max:(ARRAY_SIZE(exposureTimes) - 1) value:6 atY:(CGRectGetMaxY(tmpSlider.frame) + 10)];
     exposureDurationIndexSlider = tmpSlider; exposureDurationLabel = tmpLabel;
-    [self createSliderWithTitle:@"White Balance" min:0 max:1 value:0.5 atY:(CGRectGetMaxY(tmpSlider.frame) + 10)];
-    whiteBalanceTemperatureSlider = tmpSlider; whiteBalanceTemperatureLabel = tmpLabel;
     [self createSliderWithTitle:@"Focus" min:0 max:1 value:0.5 atY:(CGRectGetMaxY(tmpSlider.frame) + 10)];
     focusPositionSlider = tmpSlider; focusPositionLabel = tmpLabel;
     

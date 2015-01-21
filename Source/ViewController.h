@@ -12,13 +12,11 @@
     // sliders to manipulate the camera control values
     UISlider*                   exposureDurationIndexSlider;
     UISlider*                   exposureGainSlider;
-    UISlider*                   whiteBalanceTemperatureSlider;
     UISlider*                   focusPositionSlider;
     
     // labels to show the camera control values
     UILabel*                    exposureDurationLabel;
     UILabel*                    exposureGainLabel;
-    UILabel*                    whiteBalanceTemperatureLabel;
     UILabel*                    focusPositionLabel;
     
     // timer to commit the settings
