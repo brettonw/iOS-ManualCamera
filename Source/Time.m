@@ -7,3 +7,7 @@ Time makeTime(int count, int scale) {
     return time;
 }
 
+BOOL timesAreEquivalent(Time left, Time right) {
+    return (left.scale > 0) AND (right.scale > 0) AND
+        ((left.count * right.scale) == (right.count * left.scale));
+}

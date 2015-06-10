@@ -1,11 +1,20 @@
 #import "Camera.h"
+#import "FloatMath.h"
+#import <Photos/Photos.h>
 
 @implementation Camera
 
-@synthesize buffer = buffer;
+#pragma mark -
+#pragma mark Delegate
 @synthesize delegate;
-@synthesize busy = busy;
 
+#pragma mark -
+#pragma mark Property Accessors
+@synthesize busy = busy;
+@synthesize buffer = buffer;
+
+#pragma mark -
+#pragma mark Exposure
 @dynamic iso;
 
 -(float) iso {
@@ -13,8 +22,11 @@
 }
 
 -(void) setIso:(float)iso {
-    exposureIso = iso;
-    exposureDirty = YES;
+    if (NOT floatsAreEquivalent(iso, exposureIso)) {
+        exposureIso = iso;
+        exposureDirty = YES;
+        NSLog(@"Set ISO %0.02f", iso);
+    }
 }
 
 @dynamic time;
@@ -24,10 +36,57 @@
 }
 
 -(void) setTime:(Time)time {
-    exposureTime = time;
-    exposureDirty = YES;
+    if (NOT timesAreEquivalent(time, exposureTime)) {
+        exposureTime = time;
+        exposureDirty = YES;
+        NSLog(@"Set time %d/%d sec", time.count, time.scale);
+    }
 }
 
+-(void) commitExposure {
+    // don't do this unless the exposure values have changed
+    if (exposureDirty) {
+        // lock the device for configuration
+        NSError*    error = nil;
+        if ((NOT busy) AND [captureDevice lockForConfiguration:&error]) {
+            busy = YES;
+            // objective C documentation recommends against strongly capturing self...
+            Camera* __weak weakSelf = self;
+            NSLog(@"Commit exposure");
+            CMTime  cmtime = CMTimeMake(exposureTime.count, exposureTime.scale);
+            [captureDevice setExposureModeCustomWithDuration:cmtime ISO:exposureIso completionHandler:^(CMTime syncTime) {
+                exposureDirty = NO;
+                busy = NO;
+                shouldCaptureBuffer = YES;
+                if (delegate && [delegate respondsToSelector:@selector(cameraUpdatedExposure:)]) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [weakSelf.delegate cameraUpdatedExposure:weakSelf];
+                    });
+                }
+            }];
+            [captureDevice unlockForConfiguration];
+        }
+    }
+}
+
+-(void) commitExposureIso:(float)iso andTime:(Time)time {
+    [self setIso:iso];
+    [self setTime:time];
+    [self commitExposure];
+}
+
+-(void) commitExposureIso:(float)iso {
+    [self setIso:iso];
+    [self commitExposure];
+}
+
+-(void) commitExposureTime:(Time)time {
+    [self setTime:time];
+    [self commitExposure];
+}
+
+#pragma mark -
+#pragma mark Color Balance
 @dynamic gains;
 
 -(Gains) gains {
@@ -39,10 +98,11 @@
     if (NOT gainsAreEquivalent([self gains], gains)) {
         // lock the device for configuration
         NSError*    error = nil;
-        if ([captureDevice lockForConfiguration:&error]) {
+        if ((NOT busy) AND [captureDevice lockForConfiguration:&error]) {
+            busy = YES;
             // objective C documentation recommends against strongly capturing self...
             Camera* __weak weakSelf = self;
-            busy = YES;
+            NSLog(@"Commit gains");
             [captureDevice setWhiteBalanceModeLockedWithDeviceWhiteBalanceGains:*(AVCaptureWhiteBalanceGains*)&gains completionHandler:^(CMTime syncTime) {
                 busy = NO;
                 shouldCaptureBuffer = YES;
@@ -62,6 +122,8 @@
     [self setGains:whiteGains];
 }
 
+#pragma mark -
+#pragma mark Focus
 @dynamic focus;
 
 -(float) focus {
@@ -69,13 +131,14 @@
 }
 
 -(void) setFocus:(float)focus {
-    if (focus != captureDevice.lensPosition) {
+    if (NOT floatsAreEquivalentEpsilon(focus, captureDevice.lensPosition, 3.333e-3)) {
         // lock the device for configuration
         NSError*    error = nil;
-        if ([captureDevice lockForConfiguration:&error]) {
+        if ((NOT busy) AND [captureDevice lockForConfiguration:&error]) {
+            busy = YES;
             // objective C documentation recommends against strongly capturing self...
             Camera* __weak weakSelf = self;
-            busy = YES;
+            NSLog(@"Commit focus %0.02f", focus);
             [captureDevice setFocusModeLockedWithLensPosition:focus completionHandler:^(CMTime syncTime) {
                 busy = NO;
                 shouldCaptureBuffer = YES;
@@ -90,50 +153,8 @@
     }
 }
 
--(void) commitExposure {
-    // don't do this unless the exposure values have changed
-    if (exposureDirty) {
-        // lock the device for configuration
-        NSError*    error = nil;
-        if ([captureDevice lockForConfiguration:&error]) {
-            // objective C documentation recommends against strongly capturing self...
-            Camera* __weak weakSelf = self;
-            busy = YES;
-            CMTime  cmtime = CMTimeMake(exposureTime.count, exposureTime.scale);
-            [captureDevice setExposureModeCustomWithDuration:cmtime ISO:exposureIso completionHandler:^(CMTime syncTime) {
-                exposureDirty = NO;
-                busy = NO;
-                shouldCaptureBuffer = YES;
-                if (delegate && [delegate respondsToSelector:@selector(cameraUpdatedExposure:)]) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [weakSelf.delegate cameraUpdatedExposure:weakSelf];
-                    });
-                }
-            }];
-            [captureDevice unlockForConfiguration];
-        }
-    }
-}
-
--(void) setExposureIso:(float)iso andTime:(Time)time {
-    exposureIso = iso;
-    exposureTime = time;
-    exposureDirty = YES;
-    [self commitExposure];
-}
-
--(void) setExposureIso:(float)iso {
-    exposureIso = iso;
-    exposureDirty = YES;
-    [self commitExposure];
-}
-
--(void) setExposureTime:(Time)time {
-    exposureTime = time;
-    exposureDirty = YES;
-    [self commitExposure];
-}
-
+#pragma mark -
+#pragma mark Ranges
 @dynamic isoRange;
 
 -(FloatRange) isoRange {
@@ -159,6 +180,8 @@
     return captureDevice.lensAperture;
 }
 
+#pragma mark -
+#pragma mark Start/Stop
 -(void) startVideo {
     [view.layer addSublayer:previewLayer];
     [captureSession startRunning];
@@ -175,16 +198,70 @@
     }
 }
 
+-(AVCaptureConnection*) getCaptureConnection {
+#if 1
+    return [stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
+#else
+    for (AVCaptureConnection* connection in stillImageOutput.connections) {
+        for (AVCaptureInputPort* port in [connection inputPorts]) {
+            if ([[port mediaType] isEqual:AVMediaTypeVideo]) {
+                return connection;
+            }
+        }
+    }
+    return nil;
+#endif
+}
+
+-(void) snapshot {
+    AVCaptureConnection* connection = [self getCaptureConnection];
+    if (connection != nil) {
+        if (NOT busy) {
+            busy = YES;
+            [stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^(CMSampleBufferRef imageSampleBuffer, NSError* error) {
+                busy = NO;
+                if (error == nil) {
+                    // the sample buffer is not retained. Create image data before saving the still image to the photo library asynchronously.
+                    NSData* imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageSampleBuffer];
+                    UIImage* image = [UIImage imageWithData:imageData];
+                    [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status){
+                        if (status == PHAuthorizationStatusAuthorized) {
+                            [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
+                                [PHAssetChangeRequest creationRequestForAssetFromImage:image];
+                            } completionHandler:^(BOOL success, NSError* error) {
+                                if (success) {
+                                    NSLog(@"Image captured!");
+                                } else {
+                                    NSLog(@"Error occurred while saving image to photo library: %@", error);
+                                }
+                            }];
+                        }
+                    }];
+                }
+                else {
+                    NSLog(@"Could not capture still image: %@", error);
+                }
+            }];
+        } else {
+            NSLog(@"Busy");
+        }
+    } else {
+        NSLog(@"Could not find connection");
+    }
+}
+
+#pragma mark -
+#pragma mark Constructor
 -(void) setupVideoCapture:(UIView*)inView {
     // activate the capture session
-    NSError*    error = nil;
     
     captureSession = [AVCaptureSession new];
     [captureSession setSessionPreset:AVCaptureSessionPreset1280x720];
     
-    // select a video device, make an input
+    // select a video device (probably the back camera), make an input
     captureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-    AVCaptureDeviceInput*   deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
+    NSError* error = nil;
+    AVCaptureDeviceInput* deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
     if (error == nil) {
         if ([captureSession canAddInput:deviceInput]) {
             [captureSession addInput:deviceInput];
@@ -208,6 +285,16 @@
         }
         [videoDataOutput connectionWithMediaType:AVMediaTypeVideo].enabled = YES;
         
+        // create a still capture output
+        stillImageOutput = [AVCaptureStillImageOutput new];
+        stillImageOutput.outputSettings = @{ AVVideoCodecKey : AVVideoCodecJPEG };
+        stillImageOutput.highResolutionStillImageOutputEnabled = YES;
+        if ([captureSession canAddOutput:stillImageOutput]) {
+            [captureSession addOutput:stillImageOutput];
+        }
+        [stillImageOutput connectionWithMediaType:AVMediaTypeVideo].enabled = YES;
+        
+        // create the preview image capability
         previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:captureSession];
         previewLayer.backgroundColor = [UIColor blackColor].CGColor;
         previewLayer.videoGravity = AVLayerVideoGravityResizeAspect;
@@ -235,7 +322,8 @@
     return self;
 }
 
-
+#pragma mark -
+#pragma mark Sample Buffer Delegate
 - (void) captureOutput:(AVCaptureOutput*)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection*)connection
 {
     if (shouldCaptureBuffer) {

@@ -1,4 +1,5 @@
 #import "Gains.h"
+#import "FloatMath.h"
 
 Gains   makeGains(float red, float green, float blue, float limit) {
     Gains   gains;
@@ -20,9 +21,8 @@ Gains   makeGainsWhite (Gains input, float r, float g, float b, float limit) {
 }
 
 BOOL gainsAreEquivalent(Gains left, Gains right) {
-    float epsilon = 1.0e-5;
     return
-        (ABS(left.red - right.red) < epsilon) AND
-        (ABS(left.green - right.green) < epsilon) AND
-        (ABS(left.blue - right.blue) < epsilon);
+        floatsAreEquivalent(left.red, right.red) AND
+        floatsAreEquivalent(left.green, right.green) AND
+        floatsAreEquivalent(left.blue, right.blue);
 }

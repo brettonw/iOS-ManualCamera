@@ -15,7 +15,7 @@ int exposureTimes[] = { 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384, 512, 
     float iso = exposureIsoSlider.value;
     int   exposureDuration = exposureTimes[(int)(exposureTimeIndexSlider.value + 0.5)];
     Time time = makeTime(1, exposureDuration);
-    [camera setExposureIso:iso andTime:time];
+    [camera commitExposureIso:iso andTime:time];
     
     // set the focus position, the range is [0..1], and report the focus control value
     camera.focus = focusPositionSlider.value;
@@ -35,6 +35,8 @@ int exposureTimes[] = { 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384, 512, 
 }
 
 -(void) handleTapGesture:(id)input {
+    dispatch_async(dispatch_get_main_queue(), ^{
+    /*
     PixelBuffer*    pixelBuffer = camera.buffer;
     
     // sample the target rect
@@ -43,6 +45,9 @@ int exposureTimes[] = { 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384, 512, 
     CGRect          sampleRect = CGRectMake(x - 5, y - 5, 11, 11);
     Color           sampleMeanColor = [pixelBuffer meanColorInRect:sampleRect];
     [camera setWhite:sampleMeanColor];
+     */
+    [camera snapshot];
+    });
 }
 
 // build a slider and label together

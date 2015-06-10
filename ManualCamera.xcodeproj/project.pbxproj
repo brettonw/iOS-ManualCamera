@@ -23,6 +23,8 @@
 		64BACFEC1B263EB700CFAB63 /* Gains.m in Sources */ = {isa = PBXBuildFile; fileRef = 64BACFEB1B263EB700CFAB63 /* Gains.m */; };
 		64BACFEF1B263F2A00CFAB63 /* TimeRange.m in Sources */ = {isa = PBXBuildFile; fileRef = 64BACFEE1B263F2A00CFAB63 /* TimeRange.m */; };
 		64BACFF71B28893400CFAB63 /* Color.m in Sources */ = {isa = PBXBuildFile; fileRef = 64BACFF61B28893400CFAB63 /* Color.m */; };
+		64BACFFE1B28D32100CFAB63 /* Photos.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 64BACFFD1B28D32100CFAB63 /* Photos.framework */; };
+		64BAD0011B28F47B00CFAB63 /* FloatMath.m in Sources */ = {isa = PBXBuildFile; fileRef = 64BAD0001B28F47B00CFAB63 /* FloatMath.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -56,6 +58,9 @@
 		64BACFF41B2888D900CFAB63 /* Pixel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Pixel.h; sourceTree = "<group>"; };
 		64BACFF51B28893400CFAB63 /* Color.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Color.h; sourceTree = "<group>"; };
 		64BACFF61B28893400CFAB63 /* Color.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Color.m; sourceTree = "<group>"; };
+		64BACFFD1B28D32100CFAB63 /* Photos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Photos.framework; path = System/Library/Frameworks/Photos.framework; sourceTree = SDKROOT; };
+		64BACFFF1B28F47B00CFAB63 /* FloatMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FloatMath.h; sourceTree = "<group>"; };
+		64BAD0001B28F47B00CFAB63 /* FloatMath.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FloatMath.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +68,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				64BACFFE1B28D32100CFAB63 /* Photos.framework in Frameworks */,
 				643BE7FC18AA9428008643D8 /* CoreVideo.framework in Frameworks */,
 				643BE7F7189DD062008643D8 /* AVFoundation.framework in Frameworks */,
 				642CB3EA188572DE001C5210 /* CoreGraphics.framework in Frameworks */,
@@ -98,6 +104,7 @@
 				642CB3E7188572DE001C5210 /* Foundation.framework */,
 				642CB3E9188572DE001C5210 /* CoreGraphics.framework */,
 				643BE7FB18AA9428008643D8 /* CoreVideo.framework */,
+				64BACFFD1B28D32100CFAB63 /* Photos.framework */,
 				642CB3EB188572DE001C5210 /* UIKit.framework */,
 			);
 			name = Frameworks;
@@ -113,14 +120,16 @@
 				64BACFF01B2787F400CFAB63 /* CameraUpdateProtocol.h */,
 				64BACFF51B28893400CFAB63 /* Color.h */,
 				64BACFF61B28893400CFAB63 /* Color.m */,
+				64BACFFF1B28F47B00CFAB63 /* FloatMath.h */,
+				64BAD0001B28F47B00CFAB63 /* FloatMath.m */,
+				64BACFE41B26376500CFAB63 /* FloatRange.h */,
+				64BACFE51B26376500CFAB63 /* FloatRange.m */,
 				64BACFEA1B263EB700CFAB63 /* Gains.h */,
 				64BACFEB1B263EB700CFAB63 /* Gains.m */,
 				64BACFF41B2888D900CFAB63 /* Pixel.h */,
 				64161C201A718F6C00AF368D /* PixelBuffer.h */,
 				64161C211A718F6C00AF368D /* PixelBuffer.m */,
 				642CB3F5188572DE001C5210 /* Prefix.pch */,
-				64BACFE41B26376500CFAB63 /* FloatRange.h */,
-				64BACFE51B26376500CFAB63 /* FloatRange.m */,
 				64BACFE71B2638B300CFAB63 /* Time.h */,
 				64BACFE81B2638B300CFAB63 /* Time.m */,
 				64BACFED1B263F2A00CFAB63 /* TimeRange.h */,
@@ -214,6 +223,7 @@
 				64161C221A718F6C00AF368D /* PixelBuffer.m in Sources */,
 				64BACFE31B24F36200CFAB63 /* Camera.m in Sources */,
 				64BACFEF1B263F2A00CFAB63 /* TimeRange.m in Sources */,
+				64BAD0011B28F47B00CFAB63 /* FloatMath.m in Sources */,
 				64BACFEC1B263EB700CFAB63 /* Gains.m in Sources */,
 				64BACFE61B26376500CFAB63 /* FloatRange.m in Sources */,
 				64BACFF71B28893400CFAB63 /* Color.m in Sources */,
