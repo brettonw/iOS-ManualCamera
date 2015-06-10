@@ -1,51 +1,11 @@
 #import "ViewController.h"
 #import "AppDelegate.h"
-#import "AVCaptureDevicePrivate.h"
-#import "PixelBuffer.h"
 
 // these values are the denominator of the fractional time of the exposure, i.e.
 // 1/1s, 1/2s, 1/3s, 1/4s... full and half stops
 int exposureTimes[] = { 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384, 512, 768, 1024, 1536, 2048, 3072, 4096 };
 
 @implementation ViewController
-
-/*
-- (void) captureOutput:(AVCaptureOutput*)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection*)connection
-{
-    // take a look around the white balance sample point and try to make that
-    // point white
-    if (NOT (captureDevice.isAdjustingExposure OR captureDevice.isAdjustingFocus OR captureDevice.isAdjustingWhiteBalance)) {
-        if (captureWhiteBalanceCorrection) {
-            // fetch the pixel buffer for the frame data we want to examine
-            PixelBuffer*    pixelBuffer = [[PixelBuffer alloc] initWithCVPixelBufferRef:CMSampleBufferGetImageBuffer (sampleBuffer)];
-            
-            // sample the target rect
-            int             x = pixelBuffer.width * whiteBalancePoint.x;
-            int             y = pixelBuffer.height * whiteBalancePoint.y;
-            CGRect          sampleRect = CGRectMake(x - 5, y - 5, 11, 11);
-            UIColor*        sampleMeanColor = [pixelBuffer meanColorInRect:sampleRect];
-            
-            // get the rgb components of the color
-            CGFloat         r, g, b, a;
-            if ([sampleMeanColor getRed:&r green:&g blue:&b alpha:&a]) {
-                
-                // compute the new corrections
-                CGFloat           max = MAX(MAX(r, g), b);
-                r = (whiteBalanceGains.redGain + (whiteBalanceGains.redGain * (max / r))) / 2;
-                g = (whiteBalanceGains.greenGain + (whiteBalanceGains.greenGain * (max / g))) / 2;
-                b = (whiteBalanceGains.blueGain + (whiteBalanceGains.blueGain * (max / b))) / 2;
-                captureWhiteBalanceCorrection = NO;
-
-                // normalize the corrections to compute the gains
-                CGFloat           min = MIN(MIN(r, g), b);
-                whiteBalanceGains.redGain = MIN(r / min,captureDevice.maxWhiteBalanceGain);
-                whiteBalanceGains.greenGain = MIN(g / min,captureDevice.maxWhiteBalanceGain);
-                whiteBalanceGains.blueGain = MIN(b / min,captureDevice.maxWhiteBalanceGain);
-            }
-        }
-    }
-}
-*/
 
 -(void) configureCamera:(id)sender
 {
@@ -59,55 +19,6 @@ int exposureTimes[] = { 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384, 512, 
     
     // set the focus position, the range is [0..1], and report the focus control value
     camera.focus = focusPositionSlider.value;
-    
-    /*
-    NSError*    error = nil;
-    if ([captureDevice lockForConfiguration:&error]) {
-        // these two values seem to get set automatically by the system when the
-        // capture device starts up. Unfortunately they seem to be set differently
-        // depending on the lighting environment at start, so we reset them every
-        // time to ensure consistency
-        captureDevice.contrast = 0.0;
-        captureDevice.saturation = 0.5;
-        
-        // we don't want the device to "help" us here, so we turn off low light
-        // boost mode completely
-        if (captureDevice.lowLightBoostSupported) {
-            captureDevice.automaticallyEnablesLowLightBoostWhenAvailable = NO;
-        }
-        
-        // set the gain and exposure duration, duration is set as a fractional
-        // shutter speed just like a "real" camera. Gain is a value from 0..1
-        // which maps the minISO to maxISO range on the device
-        captureDevice.exposureGain = exposureGainSlider.value;
-        NSInteger   exposureDuration = exposureTimes[(NSUInteger)(exposureDurationIndexSlider.value + 0.5)];
-        captureDevice.exposureDuration = CMTimeMake(1, (int32_t)exposureDuration);
-        
-        // set the focus position, the range is [0..1], and report the focus control value
-        captureDevice.focusPosition = focusPositionSlider.value;
-        focusPositionLabel.text = [NSString stringWithFormat:@"%05.03f", captureDevice.focusPosition];
-        
-        // set the white balance gains
-        NSLog(@"White balance gains (r = %0.03f, g = %0.03f, b = %0.03f, max = %0.03f)", whiteBalanceGains.redGain, whiteBalanceGains.greenGain, whiteBalanceGains.blueGain, captureDevice.maxWhiteBalanceGain);
-        [captureDevice setWhiteBalanceModeLockedWithDeviceWhiteBalanceGains:whiteBalanceGains completionHandler:nil];
-        
-        // try to commit the control values
-        bool success = [captureDevice commit];
-        [captureDevice unlockForConfiguration];
-        if ( success) {
-            // report the control values
-            exposureGainLabel.text = [NSString stringWithFormat:@"%05.03f", captureDevice.exposureGain];
-            exposureDurationLabel.text = [NSString stringWithFormat:@"%@%ld sec", (exposureDuration > 1) ? @"1 / " : @"", (long)exposureDuration];
-        } else {
-            if (commitTimer != nil) {
-                [commitTimer invalidate];
-            }
-            // try again in just a moment - at least as long as a frame, with 5% buffer
-            NSTimeInterval  interval = (1.0 / ((NSTimeInterval)exposureDuration)) * 0.5;
-            commitTimer = [NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(configureCaptureDevice:) userInfo:nil repeats:NO];
-        }
-    }
-     */
 }
 
 -(void)cameraUpdatedBuffer:(id)sender {

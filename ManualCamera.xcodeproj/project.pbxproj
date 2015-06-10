@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		64161C221A718F6C00AF368D /* PixelBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 64161C211A718F6C00AF368D /* PixelBuffer.m */; };
-		64273D5D1A6F56F60081FAB7 /* AVCaptureDevicePrivate.m in Sources */ = {isa = PBXBuildFile; fileRef = 64273D5C1A6F56F60081FAB7 /* AVCaptureDevicePrivate.m */; };
 		642CB3E8188572DE001C5210 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 642CB3E7188572DE001C5210 /* Foundation.framework */; };
 		642CB3EA188572DE001C5210 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 642CB3E9188572DE001C5210 /* CoreGraphics.framework */; };
 		642CB3EC188572DE001C5210 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 642CB3EB188572DE001C5210 /* UIKit.framework */; };
@@ -29,7 +28,6 @@
 /* Begin PBXFileReference section */
 		64161C201A718F6C00AF368D /* PixelBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PixelBuffer.h; sourceTree = "<group>"; };
 		64161C211A718F6C00AF368D /* PixelBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PixelBuffer.m; sourceTree = "<group>"; };
-		64273D5C1A6F56F60081FAB7 /* AVCaptureDevicePrivate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVCaptureDevicePrivate.m; sourceTree = "<group>"; };
 		642CB3E4188572DE001C5210 /* ManualCamera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ManualCamera.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		642CB3E7188572DE001C5210 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		642CB3E9188572DE001C5210 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -43,7 +41,6 @@
 		642CB41E1885BA68001C5210 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		642CB41F1885BA68001C5210 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		643BE7F6189DD062008643D8 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
-		643BE7F8189DD15C008643D8 /* AVCaptureDevicePrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVCaptureDevicePrivate.h; sourceTree = "<group>"; };
 		643BE7FB18AA9428008643D8 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		64BACFE11B24F36200CFAB63 /* Camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
 		64BACFE21B24F36200CFAB63 /* Camera.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Camera.m; sourceTree = "<group>"; };
@@ -111,8 +108,6 @@
 			children = (
 				642CB3F6188572DE001C5210 /* AppDelegate.h */,
 				642CB3F7188572DE001C5210 /* AppDelegate.m */,
-				643BE7F8189DD15C008643D8 /* AVCaptureDevicePrivate.h */,
-				64273D5C1A6F56F60081FAB7 /* AVCaptureDevicePrivate.m */,
 				64BACFE11B24F36200CFAB63 /* Camera.h */,
 				64BACFE21B24F36200CFAB63 /* Camera.m */,
 				64BACFF01B2787F400CFAB63 /* CameraUpdateProtocol.h */,
@@ -217,7 +212,6 @@
 			files = (
 				64BACFE91B2638B300CFAB63 /* Time.m in Sources */,
 				64161C221A718F6C00AF368D /* PixelBuffer.m in Sources */,
-				64273D5D1A6F56F60081FAB7 /* AVCaptureDevicePrivate.m in Sources */,
 				64BACFE31B24F36200CFAB63 /* Camera.m in Sources */,
 				64BACFEF1B263F2A00CFAB63 /* TimeRange.m in Sources */,
 				64BACFEC1B263EB700CFAB63 /* Gains.m in Sources */,
