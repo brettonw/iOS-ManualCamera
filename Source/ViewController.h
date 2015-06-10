@@ -19,8 +19,16 @@
     UILabel*                    exposureGainLabel;
     UILabel*                    focusPositionLabel;
     
+    // white balance
+    AVCaptureWhiteBalanceGains  whiteBalanceGains;
+    CGPoint                     whiteBalancePoint;
+    UIView*                     whiteBalanceFeedbackView;
+    
     // timer to commit the settings
     NSTimer*                    commitTimer;
+    
+    // flag to indicate we are capturing white balance
+    bool captureWhiteBalanceCorrection;
 }
 
 @end

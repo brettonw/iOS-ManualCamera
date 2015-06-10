@@ -1,6 +1,7 @@
 #import "ViewController.h"
 #import "AppDelegate.h"
 #import "AVCaptureDevicePrivate.h"
+#import "PixelBuffer.h"
 
 // these values are the denominator of the fractional time of the exposure, i.e.
 // 1/1s, 1/2s, 1/3s, 1/4s... full and half stops
@@ -10,7 +11,38 @@ NSInteger exposureTimes[] = { 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384,
 
 - (void) captureOutput:(AVCaptureOutput*)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection*)connection
 {
-    // whatcha wanna do with the image?
+    // take a look around the white balance sample point and try to make that
+    // point white
+    if (NOT (captureDevice.isAdjustingExposure OR captureDevice.isAdjustingFocus OR captureDevice.isAdjustingWhiteBalance)) {
+        if (captureWhiteBalanceCorrection) {
+            // fetch the pixel buffer for the frame data we want to examine
+            PixelBuffer*    pixelBuffer = [[PixelBuffer alloc] initWithCVPixelBufferRef:CMSampleBufferGetImageBuffer (sampleBuffer)];
+            
+            // sample the target rect
+            int             x = pixelBuffer.width * whiteBalancePoint.x;
+            int             y = pixelBuffer.height * whiteBalancePoint.y;
+            CGRect          sampleRect = CGRectMake(x - 5, y - 5, 11, 11);
+            UIColor*        sampleMeanColor = [pixelBuffer meanColorInRect:sampleRect];
+            
+            // get the rgb components of the color
+            CGFloat         r, g, b, a;
+            if ([sampleMeanColor getRed:&r green:&g blue:&b alpha:&a]) {
+                
+                // compute the new corrections
+                CGFloat           max = MAX(MAX(r, g), b);
+                r = (whiteBalanceGains.redGain + (whiteBalanceGains.redGain * (max / r))) / 2;
+                g = (whiteBalanceGains.greenGain + (whiteBalanceGains.greenGain * (max / g))) / 2;
+                b = (whiteBalanceGains.blueGain + (whiteBalanceGains.blueGain * (max / b))) / 2;
+                captureWhiteBalanceCorrection = NO;
+
+                // normalize the corrections to compute the gains
+                CGFloat           min = MIN(MIN(r, g), b);
+                whiteBalanceGains.redGain = MIN(r / min,captureDevice.maxWhiteBalanceGain);
+                whiteBalanceGains.greenGain = MIN(g / min,captureDevice.maxWhiteBalanceGain);
+                whiteBalanceGains.blueGain = MIN(b / min,captureDevice.maxWhiteBalanceGain);
+            }
+        }
+    }
 }
 
 - (void) configureCaptureDevice:(id)sender
@@ -46,11 +78,15 @@ NSInteger exposureTimes[] = { 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384,
         captureDevice.exposureGain = exposureGainSlider.value;
         NSInteger   exposureDuration = exposureTimes[(NSUInteger)(exposureDurationIndexSlider.value + 0.5)];
         captureDevice.exposureDuration = CMTimeMake(1, (int32_t)exposureDuration);
-
+        
         // set the focus position, the range is [0..1], and report the focus control value
         captureDevice.focusPosition = focusPositionSlider.value;
         focusPositionLabel.text = [NSString stringWithFormat:@"%05.03f", captureDevice.focusPosition];
-
+        
+        // set the white balance gains
+        NSLog(@"White balance gains (r = %0.03f, g = %0.03f, b = %0.03f, max = %0.03f)", whiteBalanceGains.redGain, whiteBalanceGains.greenGain, whiteBalanceGains.blueGain, captureDevice.maxWhiteBalanceGain);
+        [captureDevice setWhiteBalanceModeLockedWithDeviceWhiteBalanceGains:whiteBalanceGains completionHandler:nil];
+        
         // try to commit the control values
         bool success = [captureDevice commit];
         [captureDevice unlockForConfiguration];
@@ -63,24 +99,29 @@ NSInteger exposureTimes[] = { 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384,
                 [commitTimer invalidate];
             }
             // try again in just a moment - at least as long as a frame, with 5% buffer
-            NSTimeInterval  interval = (1.0 / exposureDuration) * 1.05;
+            NSTimeInterval  interval = (1.0 / ((NSTimeInterval)exposureDuration)) * 0.5;
             commitTimer = [NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(configureCaptureDevice:) userInfo:nil repeats:NO];
         }
     }
 }
 
+- (void) handleTapGesture:(id)input {
+    captureWhiteBalanceCorrection = YES;
+    [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(configureCaptureDevice:) userInfo:nil repeats:NO];
+}
+
 - (void) setupVideo
 {
     // activate the capture session
-	NSError*    error = nil;
-	
-	captureSession = [AVCaptureSession new];
+    NSError*    error = nil;
+    
+    captureSession = [AVCaptureSession new];
     [captureSession setSessionPreset:AVCaptureSessionPreset1280x720];
-	
+    
     // select a video device, make an input
-	captureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-	AVCaptureDeviceInput*   deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
-	if (error == nil) {
+    captureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+    AVCaptureDeviceInput*   deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
+    if (error == nil) {
         if ([captureSession canAddInput:deviceInput]) {
             [captureSession addInput:deviceInput];
         }
@@ -113,6 +154,7 @@ NSInteger exposureTimes[] = { 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384,
         previewLayer.frame = previewLayerBounds;
         
         // set up the initial exposure and control values
+        commitTimer = nil;
         [self configureCaptureDevice:nil];
     }
 }
@@ -126,7 +168,7 @@ NSInteger exposureTimes[] = { 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384,
 - (void) stopVideo
 {
     [captureSession stopRunning];
-	[previewLayer removeFromSuperlayer];
+    [previewLayer removeFromSuperlayer];
 }
 
 // build a slider and label together
@@ -138,7 +180,7 @@ UISlider*   tmpSlider;
     CGFloat     spacing = 20;
     CGFloat     doubleSpacing = spacing * 2;
     CGFloat     halfWidth = frame.size.width / 2;
-
+    
     // create the title  label
     CGRect      labelFrame = CGRectMake(halfWidth + spacing, y, halfWidth - doubleSpacing, 20);
     tmpLabel = [[UILabel alloc] initWithFrame:labelFrame];
@@ -172,7 +214,7 @@ UISlider*   tmpSlider;
 {
     UIWindow*   window = APP_DELEGATE.window;
     CGRect      frame = window.frame;
-
+    
     // this view automatically gets resized to fill the window
     self.view = [[UIView alloc] initWithFrame:frame];
     self.view.backgroundColor = [UIColor redColor];
@@ -187,6 +229,8 @@ UISlider*   tmpSlider;
     // put down a view to contain the controls
     controlContainerView = [[UIView alloc] initWithFrame:frame];
     controlContainerView.backgroundColor = [UIColor clearColor];
+    controlContainerView.userInteractionEnabled = YES;
+    [controlContainerView addGestureRecognizer: [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)]];
     [self.view addSubview:controlContainerView];
     
     // put sliders down for camera controls
@@ -197,12 +241,24 @@ UISlider*   tmpSlider;
     [self createSliderWithTitle:@"Focus" min:0 max:1 value:0.5 atY:(CGRectGetMaxY(tmpSlider.frame) + 10)];
     focusPositionSlider = tmpSlider; focusPositionLabel = tmpLabel;
     
-    // start the video feed
-    commitTimer = nil;
+    // setup the video feed
     [self setupVideo];
+
+    // initialize the white balance
+    whiteBalanceGains = captureDevice.deviceWhiteBalanceGains;
+    whiteBalancePoint = CGPointMake(0.5, 0.5);
+    whiteBalanceFeedbackView = [[UIView alloc] initWithFrame:CGRectMake((frame.size.width / 2) - 5, (frame.size.height / 2) - 5, 11, 11)];
+    whiteBalanceFeedbackView.backgroundColor = [UIColor clearColor];
+    whiteBalanceFeedbackView.layer.borderColor = [UIColor blueColor].CGColor;
+    whiteBalanceFeedbackView.layer.borderWidth = 1;
+    //whiteBalanceFeedbackView.hidden = NO;
+    [controlContainerView addSubview:whiteBalanceFeedbackView];
+    captureWhiteBalanceCorrection = NO;
+
+    // start the video feed
     [self startVideo];
 }
-    
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
