@@ -99,14 +99,14 @@
     colorAccumulator[0] /= count; colorAccumulator[1] /= count; colorAccumulator[2] /= count;
 }
 
-- (UIColor*) meanColorInRect:(CGRect)rectIn
+- (Color) meanColorInRect:(CGRect)rectIn
 {
     // make sure we stay in bounds
     CGRect      rect = [self trimRect:rectIn];
     
     double      colorAccumulator[3];
     [self computeMeanColorInRect:rect output:colorAccumulator];
-    return [UIColor colorWithRed:colorAccumulator[0] / 255.0f green:colorAccumulator[1] / 255.0f blue:colorAccumulator[2] / 255.0f alpha:1.0f];
+    return makeColor(colorAccumulator[0] / 255.0f, colorAccumulator[1] / 255.0f, colorAccumulator[2] / 255.0f);
 }
 
 @dynamic width;

@@ -5,10 +5,11 @@
 
 // these values are the denominator of the fractional time of the exposure, i.e.
 // 1/1s, 1/2s, 1/3s, 1/4s... full and half stops
-NSInteger exposureTimes[] = { 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384, 512, 768, 1024, 1536, 2048, 3072, 4096 };
+int exposureTimes[] = { 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384, 512, 768, 1024, 1536, 2048, 3072, 4096 };
 
 @implementation ViewController
 
+/*
 - (void) captureOutput:(AVCaptureOutput*)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection*)connection
 {
     // take a look around the white balance sample point and try to make that
@@ -44,19 +45,22 @@ NSInteger exposureTimes[] = { 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384,
         }
     }
 }
+*/
 
-- (void) configureCaptureDevice:(id)sender
+-(void) configureCamera:(id)sender
 {
-    // check to see if the sender is the commit timer
-    if ((NSTimer*)sender == commitTimer) {
-        commitTimer = nil;
-    }
-    if (commitTimer != nil) {
-        // don't do anything, the timer will get it later
-        return;
-    }
+    // set the gain and exposure duration, duration is set as a fractional
+    // shutter speed just like a "real" camera. Gain is a value from 0..1
+    // which maps the minISO to maxISO range on the device
+    float iso = exposureIsoSlider.value;
+    int   exposureDuration = exposureTimes[(int)(exposureTimeIndexSlider.value + 0.5)];
+    Time time = makeTime(1, exposureDuration);
+    [camera setExposureIso:iso andTime:time];
     
-    // set the interest point for the exposure
+    // set the focus position, the range is [0..1], and report the focus control value
+    camera.focus = focusPositionSlider.value;
+    
+    /*
     NSError*    error = nil;
     if ([captureDevice lockForConfiguration:&error]) {
         // these two values seem to get set automatically by the system when the
@@ -103,78 +107,37 @@ NSInteger exposureTimes[] = { 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384,
             commitTimer = [NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(configureCaptureDevice:) userInfo:nil repeats:NO];
         }
     }
+     */
 }
 
-- (void) handleTapGesture:(id)input {
-    captureWhiteBalanceCorrection = YES;
-    [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(configureCaptureDevice:) userInfo:nil repeats:NO];
+-(void)cameraUpdatedBuffer:(id)sender {
+    [self configureCamera:nil];
 }
 
-- (void) setupVideo
-{
-    // activate the capture session
-    NSError*    error = nil;
+-(void)cameraUpdatedFocus:(id)sender {
+    focusPositionLabel.text = [NSString stringWithFormat:@"%05.03f", camera.focus];
+}
+
+-(void)cameraUpdatedExposure:(id)sender {
+    exposureIsoLabel.text = [NSString stringWithFormat:@"%05.03f", camera.iso];
+    exposureTimeLabel.text = [NSString stringWithFormat:@"%d/%d sec", camera.time.count, camera.time.scale];
+}
+
+-(void) handleTapGesture:(id)input {
+    PixelBuffer*    pixelBuffer = camera.buffer;
     
-    captureSession = [AVCaptureSession new];
-    [captureSession setSessionPreset:AVCaptureSessionPreset1280x720];
-    
-    // select a video device, make an input
-    captureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-    AVCaptureDeviceInput*   deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
-    if (error == nil) {
-        if ([captureSession canAddInput:deviceInput]) {
-            [captureSession addInput:deviceInput];
-        }
-        
-        // make a video data output
-        videoDataOutput = [AVCaptureVideoDataOutput new];
-        
-        // we want BGRA, both CoreGraphics and OpenGL work well with 'BGRA'
-        NSDictionary*   rgbOutputSettings = [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCMPixelFormat_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey];
-        videoDataOutput.videoSettings = rgbOutputSettings;
-        videoDataOutput.alwaysDiscardsLateVideoFrames = YES;
-        
-        // create a serial dispatch queue used for the sample buffer delegate
-        // a serial dispatch queue must be used to guarantee that video frames will be delivered in order
-        videoDataOutputQueue = dispatch_queue_create ("VideoDataOutputQueue", DISPATCH_QUEUE_SERIAL);
-        [videoDataOutput setSampleBufferDelegate:self queue:videoDataOutputQueue];
-        
-        if ([captureSession canAddOutput:videoDataOutput]) {
-            [captureSession addOutput:videoDataOutput];
-        }
-        [videoDataOutput connectionWithMediaType:AVMediaTypeVideo].enabled = YES;
-        
-        previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:captureSession];
-        previewLayer.backgroundColor = [UIColor blackColor].CGColor;
-        previewLayer.videoGravity = AVLayerVideoGravityResizeAspect;
-        previewLayer.connection.videoOrientation = AVCaptureVideoOrientationLandscapeRight;
-        
-        // make a rectangle that pushes the video to the "top" of the view
-        CGRect      previewLayerBounds = CGRectMake(0, 0, baseView.frame.size.width, floor(((baseView.frame.size.width / 1280) * 720) + 0.5));
-        previewLayer.frame = previewLayerBounds;
-        
-        // set up the initial exposure and control values
-        commitTimer = nil;
-        [self configureCaptureDevice:nil];
-    }
-}
-
-- (void) startVideo
-{
-    [baseView.layer addSublayer:previewLayer];
-    [captureSession startRunning];
-}
-
-- (void) stopVideo
-{
-    [captureSession stopRunning];
-    [previewLayer removeFromSuperlayer];
+    // sample the target rect
+    int             x = pixelBuffer.width * whiteBalancePoint.x;
+    int             y = pixelBuffer.height * whiteBalancePoint.y;
+    CGRect          sampleRect = CGRectMake(x - 5, y - 5, 11, 11);
+    Color           sampleMeanColor = [pixelBuffer meanColorInRect:sampleRect];
+    [camera setWhite:sampleMeanColor];
 }
 
 // build a slider and label together
 UILabel*    tmpLabel;
 UISlider*   tmpSlider;
-- (void) createSliderWithTitle:(NSString*)title min:(CGFloat)min max:(CGFloat)max value:(CGFloat)value atY:(CGFloat)y
+-(void) createSliderWithTitle:(NSString*)title min:(CGFloat)min max:(CGFloat)max value:(CGFloat)value atY:(CGFloat)y
 {
     CGRect      frame = controlContainerView.frame;
     CGFloat     spacing = 20;
@@ -206,11 +169,11 @@ UISlider*   tmpSlider;
     tmpSlider.minimumValue = min;
     tmpSlider.maximumValue = max;
     tmpSlider.value = value;
-    [tmpSlider addTarget:self action:@selector(configureCaptureDevice:) forControlEvents:UIControlEventValueChanged];
+    [tmpSlider addTarget:self action:@selector(configureCamera:) forControlEvents:UIControlEventValueChanged];
     [controlContainerView addSubview:tmpSlider];
 }
 
-- (void) loadView
+-(void) loadView
 {
     UIWindow*   window = APP_DELEGATE.window;
     CGRect      frame = window.frame;
@@ -233,19 +196,24 @@ UISlider*   tmpSlider;
     [controlContainerView addGestureRecognizer: [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)]];
     [self.view addSubview:controlContainerView];
     
+    // setup the video feed
+    camera = [[Camera alloc] initInView:baseView];
+    camera.delegate = self;
+    
     // put sliders down for camera controls
-    [self createSliderWithTitle:@"Gain" min:0.0 max:1.0 value:0.333 atY:20];
-    exposureGainSlider = tmpSlider; exposureGainLabel = tmpLabel;
-    [self createSliderWithTitle:@"Duration" min:0 max:(ARRAY_SIZE(exposureTimes) - 1) value:6 atY:(CGRectGetMaxY(tmpSlider.frame) + 10)];
-    exposureDurationIndexSlider = tmpSlider; exposureDurationLabel = tmpLabel;
-    [self createSliderWithTitle:@"Focus" min:0 max:1 value:0.5 atY:(CGRectGetMaxY(tmpSlider.frame) + 10)];
+    FloatRange isoRange = camera.isoRange;
+    [self createSliderWithTitle:@"ISO" min:isoRange.low max:isoRange.high value:interpolateFloatInRange(0.333, isoRange) atY:20];
+    exposureIsoSlider = tmpSlider; exposureIsoLabel = tmpLabel;
+    
+    [self createSliderWithTitle:@"Time" min:0 max:(ARRAY_SIZE(exposureTimes) - 1) value:6 atY:(CGRectGetMaxY(tmpSlider.frame) + 10)];
+    exposureTimeIndexSlider = tmpSlider; exposureTimeLabel = tmpLabel;
+    
+    FloatRange focusRange = camera.focusRange;
+    [self createSliderWithTitle:@"Focus" min:focusRange.low max:focusRange.high value:interpolateFloatInRange(0.5, focusRange) atY:(CGRectGetMaxY(tmpSlider.frame) + 10)];
     focusPositionSlider = tmpSlider; focusPositionLabel = tmpLabel;
     
-    // setup the video feed
-    [self setupVideo];
-
     // initialize the white balance
-    whiteBalanceGains = captureDevice.deviceWhiteBalanceGains;
+    whiteBalanceGains = camera.gains;
     whiteBalancePoint = CGPointMake(0.5, 0.5);
     whiteBalanceFeedbackView = [[UIView alloc] initWithFrame:CGRectMake((frame.size.width / 2) - 5, (frame.size.height / 2) - 5, 11, 11)];
     whiteBalanceFeedbackView.backgroundColor = [UIColor clearColor];
@@ -253,13 +221,13 @@ UISlider*   tmpSlider;
     whiteBalanceFeedbackView.layer.borderWidth = 1;
     //whiteBalanceFeedbackView.hidden = NO;
     [controlContainerView addSubview:whiteBalanceFeedbackView];
-    captureWhiteBalanceCorrection = NO;
 
     // start the video feed
-    [self startVideo];
+    [camera startVideo];
+    [self configureCamera:nil];
 }
 
-- (void)didReceiveMemoryWarning
+-(void) didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

@@ -1,11 +1,5 @@
-typedef struct _Pixel {
-    unsigned int    b:8;
-    unsigned int    g:8;
-    unsigned int    r:8;
-    unsigned int    a:8;
-} Pixel;
-
-#define GRAYSCALE(pixel)    ((pixel.r + pixel.g + pixel.b) / (3.0 * 255.0))
+#import "Pixel.h"
+#import "Color.h"
 
 @interface PixelBuffer : NSObject {
     CVPixelBufferRef    m_pixelBufferRef;
@@ -17,7 +11,7 @@ typedef struct _Pixel {
 - (void) finished;
 - (Pixel*) pixelsAtX:(int)x Y:(int)y;
 - (Pixel) pixelAtX:(int)x Y:(int)y;
-- (UIColor*) meanColorInRect:(CGRect)rect;
+- (Color) meanColorInRect:(CGRect)rect;
 
 @property (nonatomic, readonly) size_t  width;
 @property (nonatomic, readonly) size_t  height;

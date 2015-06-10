@@ -5,4 +5,5 @@ typedef struct {
 
 FloatRange makeFloatRange(float low, float high);
 float clampFloatToRange(float value, FloatRange range);
+float interpolateFloatInRange(float interpolant, FloatRange range);
 

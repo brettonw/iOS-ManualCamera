@@ -12,3 +12,7 @@ float clampFloatToRange(float value, FloatRange range) {
     (value > range.high) ? range.high :
     value;
 }
+
+float interpolateFloatInRange(float interpolant, FloatRange range) {
+    return range.low + ((range.high - range.low) * interpolant);
+}

@@ -36,21 +36,30 @@
 }
 
 -(void) setGains:(Gains)gains {
-    // lock the device for configuration
-    NSError*    error = nil;
-    if ([captureDevice lockForConfiguration:&error]) {
-        // objective C documentation recommends against strongly capturing self...
-        Camera* __weak weakSelf = self;
-        busy = YES;
-        [captureDevice setWhiteBalanceModeLockedWithDeviceWhiteBalanceGains:*(AVCaptureWhiteBalanceGains*)&gains completionHandler:^(CMTime syncTime) {
-            busy = NO;
-            shouldCaptureBuffer = YES;
-            if (delegate && [delegate respondsToSelector:@selector(gainsUpdated:)]) {
-                [weakSelf.delegate gainsUpdated:weakSelf];
-            }
-        }];
-        [captureDevice unlockForConfiguration];
+    if (NOT gainsAreEquivalent([self gains], gains)) {
+        // lock the device for configuration
+        NSError*    error = nil;
+        if ([captureDevice lockForConfiguration:&error]) {
+            // objective C documentation recommends against strongly capturing self...
+            Camera* __weak weakSelf = self;
+            busy = YES;
+            [captureDevice setWhiteBalanceModeLockedWithDeviceWhiteBalanceGains:*(AVCaptureWhiteBalanceGains*)&gains completionHandler:^(CMTime syncTime) {
+                busy = NO;
+                shouldCaptureBuffer = YES;
+                if (delegate && [delegate respondsToSelector:@selector(cameraUpdatedGains:)]) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [weakSelf.delegate cameraUpdatedGains:weakSelf];
+                    });
+                }
+            }];
+            [captureDevice unlockForConfiguration];
+        }
     }
+}
+
+-(void) setWhite:(Color)color {
+    Gains whiteGains = makeGainsWhite([self gains], color.red, color.green, color.blue, captureDevice.maxWhiteBalanceGain);
+    [self setGains:whiteGains];
 }
 
 @dynamic focus;
@@ -60,20 +69,24 @@
 }
 
 -(void) setFocus:(float)focus {
-    // lock the device for configuration
-    NSError*    error = nil;
-    if ([captureDevice lockForConfiguration:&error]) {
-        // objective C documentation recommends against strongly capturing self...
-        Camera* __weak weakSelf = self;
-        busy = YES;
-        [captureDevice setFocusModeLockedWithLensPosition:focus completionHandler:^(CMTime syncTime) {
-            busy = NO;
-            shouldCaptureBuffer = YES;
-            if (delegate && [delegate respondsToSelector:@selector(focusUpdated:)]) {
-                [weakSelf.delegate focusUpdated:weakSelf];
-            }
-        }];
-        [captureDevice unlockForConfiguration];
+    if (focus != captureDevice.lensPosition) {
+        // lock the device for configuration
+        NSError*    error = nil;
+        if ([captureDevice lockForConfiguration:&error]) {
+            // objective C documentation recommends against strongly capturing self...
+            Camera* __weak weakSelf = self;
+            busy = YES;
+            [captureDevice setFocusModeLockedWithLensPosition:focus completionHandler:^(CMTime syncTime) {
+                busy = NO;
+                shouldCaptureBuffer = YES;
+                if (delegate && [delegate respondsToSelector:@selector(cameraUpdatedFocus:)]) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [weakSelf.delegate cameraUpdatedFocus:weakSelf];
+                    });
+                }
+            }];
+            [captureDevice unlockForConfiguration];
+        }
     }
 }
 
@@ -91,8 +104,10 @@
                 exposureDirty = NO;
                 busy = NO;
                 shouldCaptureBuffer = YES;
-                if (delegate && [delegate respondsToSelector:@selector(exposureUpdated:)]) {
-                    [weakSelf.delegate exposureUpdated:weakSelf];
+                if (delegate && [delegate respondsToSelector:@selector(cameraUpdatedExposure:)]) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [weakSelf.delegate cameraUpdatedExposure:weakSelf];
+                    });
                 }
             }];
             [captureDevice unlockForConfiguration];
@@ -152,6 +167,12 @@
 -(void) stopVideo {
     [captureSession stopRunning];
     [previewLayer removeFromSuperlayer];
+}
+
+-(void) updateBuffer {
+    if (NOT busy) {
+        shouldCaptureBuffer = YES;
+    }
 }
 
 -(void) setupVideoCapture:(UIView*)inView {
@@ -220,6 +241,14 @@
     if (shouldCaptureBuffer) {
         buffer = [[PixelBuffer alloc] initWithCVPixelBufferRef:CMSampleBufferGetImageBuffer (sampleBuffer)];
         shouldCaptureBuffer = NO;
+        if (delegate && [delegate respondsToSelector:@selector(cameraUpdatedBuffer:)]) {
+            [delegate cameraUpdatedBuffer:self];
+            // objective C documentation recommends against strongly capturing self...
+            Camera* __weak weakSelf = self;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [weakSelf.delegate cameraUpdatedBuffer:weakSelf];
+            });
+        }
     }
 }
 

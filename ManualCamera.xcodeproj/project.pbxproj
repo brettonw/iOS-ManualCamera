@@ -23,6 +23,7 @@
 		64BACFE91B2638B300CFAB63 /* Time.m in Sources */ = {isa = PBXBuildFile; fileRef = 64BACFE81B2638B300CFAB63 /* Time.m */; };
 		64BACFEC1B263EB700CFAB63 /* Gains.m in Sources */ = {isa = PBXBuildFile; fileRef = 64BACFEB1B263EB700CFAB63 /* Gains.m */; };
 		64BACFEF1B263F2A00CFAB63 /* TimeRange.m in Sources */ = {isa = PBXBuildFile; fileRef = 64BACFEE1B263F2A00CFAB63 /* TimeRange.m */; };
+		64BACFF71B28893400CFAB63 /* Color.m in Sources */ = {isa = PBXBuildFile; fileRef = 64BACFF61B28893400CFAB63 /* Color.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -55,6 +56,9 @@
 		64BACFED1B263F2A00CFAB63 /* TimeRange.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeRange.h; sourceTree = "<group>"; };
 		64BACFEE1B263F2A00CFAB63 /* TimeRange.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimeRange.m; sourceTree = "<group>"; };
 		64BACFF01B2787F400CFAB63 /* CameraUpdateProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CameraUpdateProtocol.h; sourceTree = "<group>"; };
+		64BACFF41B2888D900CFAB63 /* Pixel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Pixel.h; sourceTree = "<group>"; };
+		64BACFF51B28893400CFAB63 /* Color.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Color.h; sourceTree = "<group>"; };
+		64BACFF61B28893400CFAB63 /* Color.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Color.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,8 +116,11 @@
 				64BACFE11B24F36200CFAB63 /* Camera.h */,
 				64BACFE21B24F36200CFAB63 /* Camera.m */,
 				64BACFF01B2787F400CFAB63 /* CameraUpdateProtocol.h */,
+				64BACFF51B28893400CFAB63 /* Color.h */,
+				64BACFF61B28893400CFAB63 /* Color.m */,
 				64BACFEA1B263EB700CFAB63 /* Gains.h */,
 				64BACFEB1B263EB700CFAB63 /* Gains.m */,
+				64BACFF41B2888D900CFAB63 /* Pixel.h */,
 				64161C201A718F6C00AF368D /* PixelBuffer.h */,
 				64161C211A718F6C00AF368D /* PixelBuffer.m */,
 				642CB3F5188572DE001C5210 /* Prefix.pch */,
@@ -215,6 +222,7 @@
 				64BACFEF1B263F2A00CFAB63 /* TimeRange.m in Sources */,
 				64BACFEC1B263EB700CFAB63 /* Gains.m in Sources */,
 				64BACFE61B26376500CFAB63 /* FloatRange.m in Sources */,
+				64BACFF71B28893400CFAB63 /* Color.m in Sources */,
 				642CB4201885BA68001C5210 /* ViewController.m in Sources */,
 				642CB3F8188572DE001C5210 /* AppDelegate.m in Sources */,
 			);

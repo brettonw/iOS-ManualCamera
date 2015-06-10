@@ -1,4 +1,3 @@
-@protocol CameraUpdateProtocol;
 @protocol CameraUpdateProtocol<NSObject>
 
 /*
@@ -7,8 +6,9 @@
 */
 
 @optional
--(void)focusUpdated:(id)camera;
--(void)exposureUpdated:(id)camera;
--(void)gainsUpdated:(id)camera;
+-(void)cameraUpdatedFocus:(id)camera;
+-(void)cameraUpdatedExposure:(id)camera;
+-(void)cameraUpdatedGains:(id)camera;
+-(void)cameraUpdatedBuffer:(id)camera;
 
 @end

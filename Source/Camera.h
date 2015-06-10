@@ -35,6 +35,7 @@
 -(void) setExposureTime:(Time)time;
 
 @property Gains gains;
+-(void) setWhite:(Color)color;
 
 @property float focus;
 
@@ -47,6 +48,7 @@
 
 -(void) startVideo;
 -(void) stopVideo;
+-(void) updateBuffer;
 
 -(id) initInView:(UIView*)inView;
 
