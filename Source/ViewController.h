@@ -15,6 +15,9 @@
     UILabel*                    exposureIsoLabel;
     UILabel*                    focusPositionLabel;
     
+    // button to take a picture
+    UIButton*                   snapshotButton;
+    
     // configurations
     Gains                       whiteBalanceGains;
     

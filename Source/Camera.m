@@ -48,23 +48,30 @@
     if (exposureDirty) {
         // lock the device for configuration
         NSError*    error = nil;
-        if ((NOT busy) AND [captureDevice lockForConfiguration:&error]) {
-            busy = YES;
-            // objective C documentation recommends against strongly capturing self...
-            Camera* __weak weakSelf = self;
-            NSLog(@"Commit exposure");
-            CMTime  cmtime = CMTimeMake(exposureTime.count, exposureTime.scale);
-            [captureDevice setExposureModeCustomWithDuration:cmtime ISO:exposureIso completionHandler:^(CMTime syncTime) {
-                exposureDirty = NO;
-                busy = NO;
-                shouldCaptureBuffer = YES;
-                if (delegate && [delegate respondsToSelector:@selector(cameraUpdatedExposure:)]) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [weakSelf.delegate cameraUpdatedExposure:weakSelf];
-                    });
-                }
-            }];
-            [captureDevice unlockForConfiguration];
+        if (NOT busy) {
+            if ([captureDevice lockForConfiguration:&error]) {
+                busy = YES;
+                // objective C documentation recommends against strongly capturing self...
+                Camera* __weak weakSelf = self;
+                NSLog(@"Commit exposure");
+                CMTime  cmtime = CMTimeMake(exposureTime.count, exposureTime.scale);
+                [captureDevice setExposureModeCustomWithDuration:cmtime ISO:exposureIso completionHandler:^(CMTime syncTime) {
+                    //NSLog(@"- SUCCESS");
+                    busy = NO;
+                    exposureDirty = NO;
+                    shouldCaptureBuffer = YES;
+                    if (delegate && [delegate respondsToSelector:@selector(cameraUpdatedExposure:)]) {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [weakSelf.delegate cameraUpdatedExposure:weakSelf];
+                        });
+                    }
+                }];
+                [captureDevice unlockForConfiguration];
+            } else {
+                NSLog(@"Unable to lock device for exposure");
+            }
+        } else {
+            //NSLog(@"Unable to commit exposure: BUSY");
         }
     }
 }
@@ -98,21 +105,28 @@
     if (NOT gainsAreEquivalent([self gains], gains)) {
         // lock the device for configuration
         NSError*    error = nil;
-        if ((NOT busy) AND [captureDevice lockForConfiguration:&error]) {
-            busy = YES;
-            // objective C documentation recommends against strongly capturing self...
-            Camera* __weak weakSelf = self;
-            NSLog(@"Commit gains");
-            [captureDevice setWhiteBalanceModeLockedWithDeviceWhiteBalanceGains:*(AVCaptureWhiteBalanceGains*)&gains completionHandler:^(CMTime syncTime) {
-                busy = NO;
-                shouldCaptureBuffer = YES;
-                if (delegate && [delegate respondsToSelector:@selector(cameraUpdatedGains:)]) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [weakSelf.delegate cameraUpdatedGains:weakSelf];
-                    });
-                }
-            }];
-            [captureDevice unlockForConfiguration];
+        if (NOT busy) {
+            if ([captureDevice lockForConfiguration:&error]) {
+                busy = YES;
+                // objective C documentation recommends against strongly capturing self...
+                Camera* __weak weakSelf = self;
+                NSLog(@"Commit gains");
+                [captureDevice setWhiteBalanceModeLockedWithDeviceWhiteBalanceGains:*(AVCaptureWhiteBalanceGains*)&gains completionHandler:^(CMTime syncTime) {
+                    busy = NO;
+                    //NSLog(@"- SUCCESS");
+                    shouldCaptureBuffer = YES;
+                    if (delegate && [delegate respondsToSelector:@selector(cameraUpdatedGains:)]) {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [weakSelf.delegate cameraUpdatedGains:weakSelf];
+                        });
+                    }
+                }];
+                [captureDevice unlockForConfiguration];
+            } else {
+                NSLog(@"Unable to lock device for gains");
+            }
+        } else {
+            //NSLog(@"Unable to commit gains: BUSY");
         }
     }
 }
@@ -134,21 +148,28 @@
     if (NOT floatsAreEquivalentEpsilon(focus, captureDevice.lensPosition, 3.333e-3)) {
         // lock the device for configuration
         NSError*    error = nil;
-        if ((NOT busy) AND [captureDevice lockForConfiguration:&error]) {
-            busy = YES;
-            // objective C documentation recommends against strongly capturing self...
-            Camera* __weak weakSelf = self;
-            NSLog(@"Commit focus %0.02f", focus);
-            [captureDevice setFocusModeLockedWithLensPosition:focus completionHandler:^(CMTime syncTime) {
-                busy = NO;
-                shouldCaptureBuffer = YES;
-                if (delegate && [delegate respondsToSelector:@selector(cameraUpdatedFocus:)]) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [weakSelf.delegate cameraUpdatedFocus:weakSelf];
-                    });
-                }
-            }];
-            [captureDevice unlockForConfiguration];
+        if (NOT busy) {
+            if ([captureDevice lockForConfiguration:&error]) {
+                busy = YES;
+                // objective C documentation recommends against strongly capturing self...
+                Camera* __weak weakSelf = self;
+                NSLog(@"Commit focus %0.02f", focus);
+                [captureDevice setFocusModeLockedWithLensPosition:focus completionHandler:^(CMTime syncTime) {
+                    busy = NO;
+                    //NSLog(@"- SUCCESS");
+                    shouldCaptureBuffer = YES;
+                    if (delegate && [delegate respondsToSelector:@selector(cameraUpdatedFocus:)]) {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [weakSelf.delegate cameraUpdatedFocus:weakSelf];
+                        });
+                    }
+                }];
+                [captureDevice unlockForConfiguration];
+            } else {
+                NSLog(@"Unable to lock device for focus");
+            }
+        } else {
+            //NSLog(@"Unable to commit focus: BUSY");
         }
     }
 }
@@ -218,8 +239,10 @@
     if (connection != nil) {
         if (NOT busy) {
             busy = YES;
+            NSLog(@"Commit Image Capture");
             [stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^(CMSampleBufferRef imageSampleBuffer, NSError* error) {
                 busy = NO;
+                //NSLog(@"- SUCCESS");
                 if (error == nil) {
                     // the sample buffer is not retained. Create image data before saving the still image to the photo library asynchronously.
                     NSData* imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageSampleBuffer];
@@ -243,7 +266,7 @@
                 }
             }];
         } else {
-            NSLog(@"Busy");
+            //NSLog(@"Unable to commit image capture: BUSY");
         }
     } else {
         NSLog(@"Could not find connection");
@@ -256,7 +279,8 @@
     // activate the capture session
     
     captureSession = [AVCaptureSession new];
-    [captureSession setSessionPreset:AVCaptureSessionPreset1280x720];
+    //[captureSession setSessionPreset:AVCaptureSessionPreset1280x720];
+    [captureSession setSessionPreset:AVCaptureSessionPresetPhoto];
     
     // select a video device (probably the back camera), make an input
     captureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
@@ -302,7 +326,12 @@
         
         // make a rectangle that pushes the video to the "top" of the view
         view = inView;
-        CGRect      previewLayerBounds = CGRectMake(0, 0, view.frame.size.width, floor(((view.frame.size.width / 1280) * 720) + 0.5));
+        CMFormatDescriptionRef formatDescription = captureDevice.activeFormat.formatDescription;
+        CMVideoDimensions dimensions = CMVideoFormatDescriptionGetDimensions(formatDescription);
+        // scale this differently
+        CGFloat width = view.frame.size.height * dimensions.width / dimensions.height;
+        CGFloat height = view.frame.size.height;
+        CGRect      previewLayerBounds = CGRectMake(0, 0, width, height);
         previewLayer.frame = previewLayerBounds;
     }
 }
@@ -313,7 +342,7 @@
         busy = NO;
         exposureDirty = NO;
         shouldCaptureBuffer = NO;
-
+        
         // set up the camera
         [self setupVideoCapture:inView];
         

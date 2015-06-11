@@ -36,17 +36,20 @@ int exposureTimes[] = { 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384, 512, 
 
 -(void) handleTapGesture:(id)input {
     dispatch_async(dispatch_get_main_queue(), ^{
-    /*
-    PixelBuffer*    pixelBuffer = camera.buffer;
-    
-    // sample the target rect
-    int             x = pixelBuffer.width * whiteBalancePoint.x;
-    int             y = pixelBuffer.height * whiteBalancePoint.y;
-    CGRect          sampleRect = CGRectMake(x - 5, y - 5, 11, 11);
-    Color           sampleMeanColor = [pixelBuffer meanColorInRect:sampleRect];
-    [camera setWhite:sampleMeanColor];
-     */
-    [camera snapshot];
+        PixelBuffer*    pixelBuffer = camera.buffer;
+        
+        // sample the target rect
+        int             x = pixelBuffer.width * whiteBalancePoint.x;
+        int             y = pixelBuffer.height * whiteBalancePoint.y;
+        CGRect          sampleRect = CGRectMake(x - 5, y - 5, 11, 11);
+        Color           sampleMeanColor = [pixelBuffer meanColorInRect:sampleRect];
+        [camera setWhite:sampleMeanColor];
+    });
+}
+
+-(void) handleSnapshotButton:(id)sender {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [camera snapshot];
     });
 }
 
@@ -118,7 +121,7 @@ UISlider*   tmpSlider;
     
     // put sliders down for camera controls
     FloatRange isoRange = camera.isoRange;
-    [self createSliderWithTitle:@"ISO" min:isoRange.low max:isoRange.high value:interpolateFloatInRange(0.333, isoRange) atY:20];
+    [self createSliderWithTitle:@"ISO" min:isoRange.low max:isoRange.high value:interpolateFloatInRange(0.333, isoRange) atY:120];
     exposureIsoSlider = tmpSlider; exposureIsoLabel = tmpLabel;
     
     [self createSliderWithTitle:@"Time" min:0 max:(ARRAY_SIZE(exposureTimes) - 1) value:6 atY:(CGRectGetMaxY(tmpSlider.frame) + 10)];
@@ -127,6 +130,16 @@ UISlider*   tmpSlider;
     FloatRange focusRange = camera.focusRange;
     [self createSliderWithTitle:@"Focus" min:focusRange.low max:focusRange.high value:interpolateFloatInRange(0.5, focusRange) atY:(CGRectGetMaxY(tmpSlider.frame) + 10)];
     focusPositionSlider = tmpSlider; focusPositionLabel = tmpLabel;
+    
+    // add the button to take a snapshot
+    snapshotButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    snapshotButton.frame = CGRectMake(frame.size.width - (20 + 60), 20, 60, 60);
+    snapshotButton.backgroundColor = [UIColor blueColor];
+    [snapshotButton layer].borderWidth = 3.0f;
+    [snapshotButton layer].borderColor = [UIColor whiteColor].CGColor;
+    [snapshotButton layer].cornerRadius = 24.0;
+    [controlContainerView addSubview:snapshotButton];
+    [snapshotButton addTarget:self action:@selector(handleSnapshotButton:) forControlEvents:UIControlEventTouchUpInside];
     
     // initialize the white balance
     whiteBalanceGains = camera.gains;
@@ -137,7 +150,7 @@ UISlider*   tmpSlider;
     whiteBalanceFeedbackView.layer.borderWidth = 1;
     //whiteBalanceFeedbackView.hidden = NO;
     [controlContainerView addSubview:whiteBalanceFeedbackView];
-
+    
     // start the video feed
     [camera startVideo];
     [self configureCamera:nil];
