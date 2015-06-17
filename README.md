@@ -14,3 +14,4 @@ Feel free to use ManualCamera sources as an educational means to understand how 
 * Color balance
 * Focus
 
+Copyright (C) 2014-2015 Bretton Wade. License is granted to use these sources for reference and educational purposes, but commercial use is prohibited. No warranty of any kind is given for the correctness or suitability of this source code for any purpose.
