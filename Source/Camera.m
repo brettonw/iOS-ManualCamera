@@ -145,7 +145,7 @@
 }
 
 -(void) setFocus:(float)focus {
-    if (NOT floatsAreEquivalentEpsilon(focus, captureDevice.lensPosition, 3.333e-3)) {
+    if (NOT floatsAreEquivalentEpsilon(focus, captureDevice.lensPosition, 4.0e-3)) {
         // lock the device for configuration
         NSError*    error = nil;
         if (NOT busy) {
@@ -201,6 +201,16 @@
     return captureDevice.lensAperture;
 }
 
+@dynamic imageSize;
+
+- (CMVideoDimensions) imageSize {
+    CMFormatDescriptionRef formatDescription = captureDevice.activeFormat.formatDescription;
+    return CMVideoFormatDescriptionGetDimensions(formatDescription);
+}
+
+@synthesize previewImageBounds = previewLayerBounds;
+
+
 #pragma mark -
 #pragma mark Start/Stop
 -(void) startVideo {
@@ -234,11 +244,13 @@
 #endif
 }
 
--(void) snapshot {
+-(BOOL) snapshot {
     AVCaptureConnection* connection = [self getCaptureConnection];
     if (connection != nil) {
         if (NOT busy) {
             busy = YES;
+            // objective C documentation recommends against strongly capturing self...
+            Camera* __weak weakSelf = self;
             NSLog(@"Commit Image Capture");
             [stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^(CMSampleBufferRef imageSampleBuffer, NSError* error) {
                 busy = NO;
@@ -252,10 +264,12 @@
                             [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
                                 [PHAssetChangeRequest creationRequestForAssetFromImage:image];
                             } completionHandler:^(BOOL success, NSError* error) {
-                                if (success) {
-                                    NSLog(@"Image captured!");
-                                } else {
-                                    NSLog(@"Error occurred while saving image to photo library: %@", error);
+                                NSLog(@"Snapshot completed with success: %@", success ? @"YES" : @"NO");
+                                shouldCaptureBuffer = YES;
+                                if (delegate && [delegate respondsToSelector:@selector(cameraSnaphotCompleted:withSuccess:)]) {
+                                    dispatch_async(dispatch_get_main_queue(), ^{
+                                        [weakSelf.delegate cameraSnaphotCompleted:weakSelf withSuccess:success];
+                                    });
                                 }
                             }];
                         }
@@ -265,12 +279,14 @@
                     NSLog(@"Could not capture still image: %@", error);
                 }
             }];
+            return YES;
         } else {
             //NSLog(@"Unable to commit image capture: BUSY");
         }
     } else {
         NSLog(@"Could not find connection");
     }
+    return NO;
 }
 
 #pragma mark -
@@ -326,12 +342,16 @@
         
         // make a rectangle that pushes the video to the "top" of the view
         view = inView;
-        CMFormatDescriptionRef formatDescription = captureDevice.activeFormat.formatDescription;
-        CMVideoDimensions dimensions = CMVideoFormatDescriptionGetDimensions(formatDescription);
+        CMVideoDimensions   imageDimensions = self.imageSize;
+        CGSize imageSize = CGSizeMake(imageDimensions.width, imageDimensions.height);
+        CGSize viewSize = view.frame.size;
+        
         // scale this differently
-        CGFloat width = view.frame.size.height * dimensions.width / dimensions.height;
-        CGFloat height = view.frame.size.height;
-        CGRect      previewLayerBounds = CGRectMake(0, 0, width, height);
+        CGFloat imageAspect = imageSize.width / imageSize.height;
+        CGFloat viewAspect = viewSize.width / viewSize.height;
+        previewLayerBounds = (imageAspect > viewAspect) ?
+            CGRectMake(0, 0, viewSize.width, viewSize.width / imageAspect) :
+            CGRectMake(0, 0, viewSize.height * imageAspect, viewSize.height);
         previewLayer.frame = previewLayerBounds;
     }
 }

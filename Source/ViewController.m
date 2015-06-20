@@ -34,7 +34,34 @@ int exposureTimes[] = { 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384, 512, 
     exposureTimeLabel.text = [NSString stringWithFormat:@"%d/%d sec", camera.time.count, camera.time.scale];
 }
 
+-(void)cameraSnaphotCompleted:(id)camera withSuccess:(BOOL)success {
+    [UIView animateWithDuration:0.25 delay:0.0 options:UIViewAnimationOptionCurveEaseOut
+                     animations: ^{
+                         feedbackView.alpha = 0.0;
+                     }
+                     completion: ^(BOOL finished){
+                     }
+     ];
+}
+
 -(void) handleTapGesture:(id)input {
+}
+
+-(void) handleSnapshotButton:(id)sender {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([camera snapshot]) {
+            [UIView animateWithDuration:0.05 delay:0.0 options:UIViewAnimationOptionCurveEaseIn
+                             animations: ^{
+                                 feedbackView.alpha = 0.95;
+                             }
+                             completion: ^(BOOL finished){
+                             }
+             ];
+        }
+    });
+}
+
+-(void) handleWhiteBalanceButton:(id)sender {
     dispatch_async(dispatch_get_main_queue(), ^{
         PixelBuffer*    pixelBuffer = camera.buffer;
         
@@ -43,28 +70,22 @@ int exposureTimes[] = { 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384, 512, 
         int             y = pixelBuffer.height * whiteBalancePoint.y;
         CGRect          sampleRect = CGRectMake(x - 5, y - 5, 11, 11);
         Color           sampleMeanColor = [pixelBuffer meanColorInRect:sampleRect];
+        
+        // and update the gains appropriately
         [camera setWhite:sampleMeanColor];
     });
 }
 
--(void) handleSnapshotButton:(id)sender {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [camera snapshot];
-    });
-}
-
-// build a slider and label together
+// build a label
 UILabel*    tmpLabel;
-UISlider*   tmpSlider;
--(void) createSliderWithTitle:(NSString*)title min:(CGFloat)min max:(CGFloat)max value:(CGFloat)value atY:(CGFloat)y
-{
+-(void) createLabelWithTitle:(NSString*)title atY:(CGFloat)y {
     CGRect      frame = controlContainerView.frame;
     CGFloat     spacing = 20;
     CGFloat     doubleSpacing = spacing * 2;
     CGFloat     halfWidth = frame.size.width / 2;
-    
+    CGRect      labelFrame = CGRectMake(halfWidth + spacing, y, halfWidth - doubleSpacing, spacing);
+
     // create the title  label
-    CGRect      labelFrame = CGRectMake(halfWidth + spacing, y, halfWidth - doubleSpacing, 20);
     tmpLabel = [[UILabel alloc] initWithFrame:labelFrame];
     tmpLabel.textAlignment = NSTextAlignmentLeft;
     tmpLabel.backgroundColor = [UIColor clearColor];
@@ -81,9 +102,21 @@ UISlider*   tmpSlider;
     tmpLabel.font = [UIFont systemFontOfSize:14.0];
     tmpLabel.text = @"XXX";
     [controlContainerView addSubview:tmpLabel];
+}
+
+// build a slider and label together
+UISlider*   tmpSlider;
+-(void) createSliderWithTitle:(NSString*)title min:(CGFloat)min max:(CGFloat)max value:(CGFloat)value atY:(CGFloat)y
+{
+    [self createLabelWithTitle:title atY:y];
+    
+    CGRect      frame = controlContainerView.frame;
+    CGFloat     spacing = 20;
+    CGFloat     doubleSpacing = spacing * 2;
+    CGFloat     halfWidth = frame.size.width / 2;
     
     // create the slider
-    CGRect      sliderFrame = CGRectMake(halfWidth + spacing, CGRectGetMaxY(labelFrame), halfWidth - doubleSpacing, doubleSpacing);
+    CGRect      sliderFrame = CGRectMake(halfWidth + spacing, CGRectGetMaxY(tmpLabel.frame), halfWidth - doubleSpacing, doubleSpacing);
     tmpSlider = [[UISlider alloc] initWithFrame:sliderFrame];
     tmpSlider.minimumValue = min;
     tmpSlider.maximumValue = max;
@@ -119,12 +152,16 @@ UISlider*   tmpSlider;
     camera = [[Camera alloc] initInView:baseView];
     camera.delegate = self;
     
+    // put down the fStop
+    [self createLabelWithTitle:@"fStop" atY:100];
+    tmpLabel.text = [NSString stringWithFormat:@"%1.1f", camera.aperture];
+    
     // put sliders down for camera controls
     FloatRange isoRange = camera.isoRange;
-    [self createSliderWithTitle:@"ISO" min:isoRange.low max:isoRange.high value:interpolateFloatInRange(0.333, isoRange) atY:120];
+    [self createSliderWithTitle:@"ISO" min:isoRange.low max:isoRange.high value:interpolateFloatInRange(0.333, isoRange) atY:(CGRectGetMaxY(tmpLabel.frame) + 5)];
     exposureIsoSlider = tmpSlider; exposureIsoLabel = tmpLabel;
     
-    [self createSliderWithTitle:@"Time" min:0 max:(ARRAY_SIZE(exposureTimes) - 1) value:6 atY:(CGRectGetMaxY(tmpSlider.frame) + 10)];
+    [self createSliderWithTitle:@"Time" min:0 max:(ARRAY_SIZE(exposureTimes) - 1) value:6 atY:(CGRectGetMaxY(tmpSlider.frame) + 5)];
     exposureTimeIndexSlider = tmpSlider; exposureTimeLabel = tmpLabel;
     
     FloatRange focusRange = camera.focusRange;
@@ -140,17 +177,41 @@ UISlider*   tmpSlider;
     [snapshotButton layer].cornerRadius = 24.0;
     [controlContainerView addSubview:snapshotButton];
     [snapshotButton addTarget:self action:@selector(handleSnapshotButton:) forControlEvents:UIControlEventTouchUpInside];
+    [snapshotButton setTitle:@"O" forState:UIControlStateNormal];
+    [snapshotButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    
+    // add the button to manage white balance
+    whiteBalanceButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    whiteBalanceButton.frame = CGRectMake(frame.size.width - (2 * (20 + 60)), 20, 60, 60);
+    whiteBalanceButton.backgroundColor = [UIColor blueColor];
+    [whiteBalanceButton layer].borderWidth = 3.0f;
+    [whiteBalanceButton layer].borderColor = [UIColor whiteColor].CGColor;
+    [whiteBalanceButton layer].cornerRadius = 24.0;
+    [controlContainerView addSubview:whiteBalanceButton];
+    [whiteBalanceButton addTarget:self action:@selector(handleWhiteBalanceButton:) forControlEvents:UIControlEventTouchUpInside];
+    [whiteBalanceButton setTitle:@"WB" forState:UIControlStateNormal];
+    [whiteBalanceButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     
     // initialize the white balance
     whiteBalanceGains = camera.gains;
     whiteBalancePoint = CGPointMake(0.5, 0.5);
-    whiteBalanceFeedbackView = [[UIView alloc] initWithFrame:CGRectMake((frame.size.width / 2) - 5, (frame.size.height / 2) - 5, 11, 11)];
+    CGRect previewBounds = camera.previewImageBounds;
+    CGFloat x = previewBounds.origin.x + (previewBounds.size.width * whiteBalancePoint.x);
+    CGFloat y = previewBounds.origin.y + (previewBounds.size.height * whiteBalancePoint.y);
+    whiteBalanceFeedbackView = [[UIView alloc] initWithFrame:CGRectMake(x - 5, y - 5, 11, 11)];
     whiteBalanceFeedbackView.backgroundColor = [UIColor clearColor];
     whiteBalanceFeedbackView.layer.borderColor = [UIColor blueColor].CGColor;
     whiteBalanceFeedbackView.layer.borderWidth = 1;
     //whiteBalanceFeedbackView.hidden = NO;
     [controlContainerView addSubview:whiteBalanceFeedbackView];
     
+    // setup the feedback view for flashing the screen when a picture takes
+    feedbackView = [[UIView alloc] initWithFrame:frame];
+    feedbackView.backgroundColor = [UIColor colorWithWhite:1.0 alpha:1.0];
+    feedbackView.alpha = 0.0;
+    feedbackView.userInteractionEnabled = YES;
+    [self.view addSubview:feedbackView];
+
     // start the video feed
     [camera startVideo];
     [self configureCamera:nil];

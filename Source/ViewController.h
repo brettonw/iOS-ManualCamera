@@ -3,6 +3,7 @@
 @interface ViewController : UIViewController <CameraUpdateProtocol> {
     UIView*                     baseView;
     UIView*                     controlContainerView;
+    UIView*                     feedbackView;
     Camera*                     camera;
     
     // sliders to manipulate the camera control values
@@ -17,6 +18,7 @@
     
     // button to take a picture
     UIButton*                   snapshotButton;
+    UIButton*                   whiteBalanceButton;
     
     // configurations
     Gains                       whiteBalanceGains;

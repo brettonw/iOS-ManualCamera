@@ -9,6 +9,7 @@
     AVCaptureSession*           captureSession;
     AVCaptureDevice*            captureDevice;
     AVCaptureVideoPreviewLayer* previewLayer;
+    CGRect                      previewLayerBounds;
     AVCaptureVideoDataOutput*   videoDataOutput;
     dispatch_queue_t            videoDataOutputQueue;
     AVCaptureStillImageOutput*  stillImageOutput;
@@ -57,13 +58,15 @@
 @property (readonly) TimeRange timeRange;
 @property (readonly) FloatRange focusRange;
 @property (readonly) float aperture;
+@property (readonly) CMVideoDimensions imageSize;
+@property (readonly) CGRect previewImageBounds;
 
 #pragma mark -
 #pragma mark Start/Stop
 -(void) startVideo;
 -(void) stopVideo;
 -(void) updateBuffer;
--(void) snapshot;
+-(BOOL) snapshot;
 
 #pragma mark -
 #pragma mark Constructor
