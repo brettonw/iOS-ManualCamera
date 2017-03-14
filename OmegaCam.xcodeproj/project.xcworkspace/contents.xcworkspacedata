@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:ManualCamera.xcodeproj">
+      location = "self:/Users/brettonw/Work/BrettonWade/iOS-ManualCamera/OmegaCam.xcodeproj">
    </FileRef>
 </Workspace>

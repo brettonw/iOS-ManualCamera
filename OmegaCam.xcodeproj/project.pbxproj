@@ -39,7 +39,7 @@
 /* Begin PBXFileReference section */
 		64161C201A718F6C00AF368D /* PixelBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PixelBuffer.h; sourceTree = "<group>"; };
 		64161C211A718F6C00AF368D /* PixelBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PixelBuffer.m; sourceTree = "<group>"; };
-		642CB3E4188572DE001C5210 /* ManualCamera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ManualCamera.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		642CB3E4188572DE001C5210 /* OmegaCam.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OmegaCam.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		642CB3E7188572DE001C5210 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		642CB3E9188572DE001C5210 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		642CB3EB188572DE001C5210 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -117,7 +117,7 @@
 		642CB3E5188572DE001C5210 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				642CB3E4188572DE001C5210 /* ManualCamera.app */,
+				642CB3E4188572DE001C5210 /* OmegaCam.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -213,9 +213,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		642CB3E3188572DE001C5210 /* ManualCamera */ = {
+		642CB3E3188572DE001C5210 /* OmegaCam */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 642CB410188572DF001C5210 /* Build configuration list for PBXNativeTarget "ManualCamera" */;
+			buildConfigurationList = 642CB410188572DF001C5210 /* Build configuration list for PBXNativeTarget "OmegaCam" */;
 			buildPhases = (
 				642CB3E0188572DE001C5210 /* Sources */,
 				642CB3E1188572DE001C5210 /* Frameworks */,
@@ -225,9 +225,9 @@
 			);
 			dependencies = (
 			);
-			name = ManualCamera;
+			name = OmegaCam;
 			productName = ManualCamera;
-			productReference = 642CB3E4188572DE001C5210 /* ManualCamera.app */;
+			productReference = 642CB3E4188572DE001C5210 /* OmegaCam.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -236,7 +236,7 @@
 		642CB3DC188572DE001C5210 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0600;
+				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = Frost;
 				TargetAttributes = {
 					642CB3E3188572DE001C5210 = {
@@ -244,7 +244,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 642CB3DF188572DE001C5210 /* Build configuration list for PBXProject "ManualCamera" */;
+			buildConfigurationList = 642CB3DF188572DE001C5210 /* Build configuration list for PBXProject "OmegaCam" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -256,7 +256,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				642CB3E3188572DE001C5210 /* ManualCamera */,
+				642CB3E3188572DE001C5210 /* OmegaCam */,
 			);
 		};
 /* End PBXProject section */
@@ -332,6 +332,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -397,7 +398,8 @@
 				GCC_PREFIX_HEADER = Source/Prefix.pch;
 				INFOPLIST_FILE = Source/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.frost.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = OmegaCam;
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
@@ -415,7 +417,8 @@
 				GCC_PREFIX_HEADER = Source/Prefix.pch;
 				INFOPLIST_FILE = Source/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.frost.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = OmegaCam;
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
@@ -425,7 +428,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		642CB3DF188572DE001C5210 /* Build configuration list for PBXProject "ManualCamera" */ = {
+		642CB3DF188572DE001C5210 /* Build configuration list for PBXProject "OmegaCam" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				642CB40E188572DF001C5210 /* Debug */,
@@ -434,7 +437,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		642CB410188572DF001C5210 /* Build configuration list for PBXNativeTarget "ManualCamera" */ = {
+		642CB410188572DF001C5210 /* Build configuration list for PBXNativeTarget "OmegaCam" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				642CB411188572DF001C5210 /* Debug */,
